@@ -18,7 +18,7 @@
 //
 
 #include "image8bit.h"
-
+#include <math.h>
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -474,11 +474,8 @@ void ImageThreshold(Image img, uint8 thr) { ///
 /// Multiply each pixel level by a factor, but saturate at maxval.
 /// This will brighten the image if factor>1.0 and
 /// darken the image if factor<1.0.
-void ImageBrighten(Image img, double factor) { ///
-  assert (img != NULL);
-  // ? assert (factor >= 0.0);
-  // Insert your code here!
-
+void ImageBrighten(Image img, double factor) {
+  assert(img != NULL);
   assert(factor >= 0.0);
 
   // Obtém o valor máximo de pixel
@@ -497,7 +494,6 @@ void ImageBrighten(Image img, double factor) { ///
       ImageSetPixel(img, x, y, newValue);
     }
   }
-
 }
 
 
