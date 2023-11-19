@@ -10,9 +10,9 @@
 /// 2013, 2023
 
 // Student authors (fill in below):
-// NMec:  Name:
-// 
-// 
+// NMec: 115931 Name: Joaquim Martins
+// NMec: 115931 Name: David Pelicano
+// NMec: 115931 Name: Tiago Soure
 // 
 // Date:
 //
@@ -796,7 +796,6 @@ void ImageBlur(Image img, int dx, int dy) { ///
       ImageSetPixel(img, x, y, ImageGetPixel(tempImg, x, y));
     }
   }
-
   // Libera a imagem temporária
   ImageDestroy(&tempImg);
 }
