@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "instrumentation.h"
 
 // The data structure
@@ -499,7 +500,7 @@ void ImageBrighten(Image img, double factor) {
       int pixel = ImageGetPixel(img, x, y);
 
       // Ajuste o valor do pixel
-      pixel = (int)(pixel * factor);
+      pixel = (int)round(pixel * factor);
 
       // Certifique-se de que o pixel está dentro dos limites de 8 bits
       if (pixel > 255) {
@@ -695,7 +696,7 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha) { ///
       uint8 pixelValue1 = ImageGetPixel(img1, destX, destY);
 
       // Calcular o novo valor do pixel com a mistura ponderada
-      uint8 blendedValue = (uint8)((1.0 - alpha) * pixelValue1 + alpha * pixelValue2);
+      uint8 blendedValue = (uint8)round((1.0 - alpha) * pixelValue1 + alpha * pixelValue2);
 
       // Definir o valor do pixel na imagem img1
       ImageSetPixel(img1, destX, destY, blendedValue);
@@ -801,15 +802,17 @@ void ImageBlur(Image img, int dx, int dy) {
       }
 
       // Calculate the average of the values in the window and set the new pixel value
-      int average = (count > 0) ? sum / count : 0;
-      ImageSetPixel(tempImg, x, y, (uint8_t)average);
+      //int average = (count > 0) ? sum / (double)count : 0;
+      uint8 average = (uint8)round(sum/(double)count);
+      ImageSetPixel(tempImg, x, y, average);
     }
   }
 
   // Copy the values from the temporary image back to the original image
   for (int y = 0; y < img->height; y++) {
     for (int x = 0; x < img->width; x++) {
-      ImageSetPixel(img, x, y, ImageGetPixel(tempImg, x, y));
+      uint8 pixel = ImageGetPixel(tempImg, x, y);
+      ImageSetPixel(img, x, y, pixel);
     }
   }
 
