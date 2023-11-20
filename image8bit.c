@@ -195,7 +195,10 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
   }
 
   // Inicializa todos os pixels com 0 (preto)
-  memset(img->pixel, 0, width * height * sizeof(uint8));
+  for (int i = 0; i < width * height; i++) {
+        img->pixel[i] = 0;
+  }
+  //memset(img->pixel, 0, width * height * sizeof(uint8));
 
   return img;
 }
@@ -354,9 +357,21 @@ void ImageStats(Image img, uint8* min, uint8* max) { ///
 }
 
 /// Check if pixel position (x,y) is inside img.
-int ImageValidPos(Image img, int x, int y) { ///
-  assert (img != NULL);
-  return (0 <= x && x < img->width) && (0 <= y && y < img->height);
+int ImageValidPos(Image img, int x, int y) {
+  assert(img != NULL);
+
+  // Verifica se x está dentro dos limites da imagem
+  if (x < 0 || x >= img->width) {
+    return 0;
+  }
+
+  // Verifica se y está dentro dos limites da imagem
+  if (y < 0 || y >= img->height) {
+    return 0;
+  }
+
+  // Se ambas as verificações passarem, a posição está dentro da imagem
+  return 1;
 }
 
 /// Check if rectangular area (x,y,w,h) is completely inside img.
@@ -470,28 +485,31 @@ void ImageThreshold(Image img, uint8 thr) { ///
   }
 }
 
-/// Brighten image by a factor.
+/// dghten image by a factor.
 /// Multiply each pixel level by a factor, but saturate at maxval.
 /// This will brighten the image if factor>1.0 and
 /// darken the image if factor<1.0.
 void ImageBrighten(Image img, double factor) {
   assert(img != NULL);
-  assert(factor >= 0.0);
+  assert(factor >= 0);
 
-  // Obtém o valor máximo de pixel
-  uint8 maxval = img->maxval;
-
-  // Percorre todos os pixels da imagem
   for (int y = 0; y < img->height; y++) {
     for (int x = 0; x < img->width; x++) {
-      // Obtém o valor do pixel
-      uint8 pixelValue = ImageGetPixel(img, x, y);
+      // Obtenha o valor do pixel atual
+      int pixel = ImageGetPixel(img, x, y);
 
-      // Aplica o fator de brilho e satura o resultado
-      uint8 newValue = (uint8)fmin(pixelValue * factor, maxval);
+      // Ajuste o valor do pixel
+      pixel = (int)(pixel * factor);
 
-      // Define o novo valor do pixel
-      ImageSetPixel(img, x, y, newValue);
+      // Certifique-se de que o pixel está dentro dos limites de 8 bits
+      if (pixel > 255) {
+        pixel = 255;
+      } else if (pixel < 0) {
+        pixel = 0;
+      }
+
+      // Defina o novo valor do pixel
+      ImageSetPixel(img, x, y, pixel);
     }
   }
 }
@@ -754,49 +772,49 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
-void ImageBlur(Image img, int dx, int dy) { ///
-  // Insert your code here!
-
+void ImageBlur(Image img, int dx, int dy) {
   assert(img != NULL);
 
-  // Cria uma cópia temporária da imagem para preservar os valores originais
+  // Create a temporary copy of the image to preserve the original values
   Image tempImg = ImageCreate(img->width, img->height, img->maxval);
   if (tempImg == NULL) {
-    // Tratamento de erro, se a alocação falhar
+    // Error handling if allocation fails
     return;
   }
 
-  // Percorre todos os pixels da imagem
+  // Traverse all pixels of the image
   for (int y = 0; y < img->height; y++) {
     for (int x = 0; x < img->width; x++) {
       int sum = 0;
       int count = 0;
 
-      // Percorre a janela ao redor do pixel atual
+      // Traverse the window around the current pixel
       for (int j = -dy; j <= dy; j++) {
         for (int i = -dx; i <= dx; i++) {
-          // Verifica se a posição é válida
+          // Check if the position is valid
           if (ImageValidPos(img, x + i, y + j)) {
-            // Soma os valores dos pixels na janela
+            // Sum the values of pixels in the window
             sum += ImageGetPixel(img, x + i, y + j);
             count++;
           }
         }
       }
 
-      // Calcula a média dos valores na janela e define o novo valor do pixel
+      // Calculate the average of the values in the window and set the new pixel value
       int average = (count > 0) ? sum / count : 0;
-      ImageSetPixel(tempImg, x, y, (uint8)average);
+      ImageSetPixel(tempImg, x, y, (uint8_t)average);
     }
   }
 
-  // Copia os valores da imagem temporária de volta para a imagem original
+  // Copy the values from the temporary image back to the original image
   for (int y = 0; y < img->height; y++) {
     for (int x = 0; x < img->width; x++) {
       ImageSetPixel(img, x, y, ImageGetPixel(tempImg, x, y));
     }
   }
-  // Libera a imagem temporária
+
+  // Free the temporary image
   ImageDestroy(&tempImg);
 }
+
 
