@@ -80,6 +80,8 @@ static int errsave = 0;
 
 // Error cause
 static char* errCause;
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
 
 /// Error cause.
 /// After some other module function fails (and returns an error code),
@@ -820,107 +822,52 @@ void ImageBlur(Image img, int dx, int dy) {
   // Free the temporary image
   ImageDestroy(&tempImg);
 }
-
 void ImageBlurv2(Image img, int dx, int dy) {
   assert(img != NULL);
 
-  // Create a temporary copy of the image to preserve the original values
-  Image tempImg = ImageCreate(img->width, img->height, img->maxval);
-  if (tempImg == NULL) {
-    // Error handling if allocation fails
-    return;
+  // Create an integral image
+  int width = img->width;
+  int height = img->height;
+  int** integralImage = (int**)malloc(height * sizeof(int*));
+  for (int i = 0; i < height; i++) {
+    integralImage[i] = (int*)calloc(width, sizeof(int));
   }
 
-  // Traverse all pixels of the image
-  for (int y = 0; y < img->height; y++) {
-    for (int x = 0; x < img->width; x++) {
+  // Calculate the integral image
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      integralImage[y][x] = ImageGetPixel(img, x, y);
+      if (y > 0) integralImage[y][x] += integralImage[y - 1][x];
+      if (x > 0) integralImage[y][x] += integralImage[y][x - 1];
+      if (y > 0 && x > 0) integralImage[y][x] -= integralImage[y - 1][x - 1];
+    }
+  }
+
+  // Apply the blur
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int x1 = x - dx - 1;
+      int x2 = x + dx;
+      int y1 = y - dy - 1;
+      int y2 = y + dy;
       int sum = 0;
-      int count = 0;
-
-      // Traverse the window around the current pixel
-      for (int j = -dy; j <= dy; j++) {
-        for (int i = -dx; i <= dx; i++) {
-          // Check if the position is valid
-          if (ImageValidPos(img, x + i, y + j)) {
-            // Add the value of the pixel to the sum and increment the count
-            sum += ImageGetPixel(img, x + i, y + j);
-            count++;
-          }
-        }
-      }
-
-      // Calculate the average of the values in the window
-      uint8 average = (uint8)round(sum / (double)count);
-
-      // Set the value of the pixel in the temporary image
-      ImageSetPixel(tempImg, x, y, average);
+      if (x2 < width && y2 < height) sum += integralImage[y2][x2];
+      if (x1 >= 0 && y2 < height) sum -= integralImage[y2][x1];
+      if (y1 >= 0 && x2 < width) sum -= integralImage[y1][x2];
+      if (x1 >= 0 && y1 >= 0) sum += integralImage[y1][x1];
+      int x1_clamped = max(0, x1 + 1);
+      int x2_clamped = min(width, x2);
+      int y1_clamped = max(0, y1 + 1);
+      int y2_clamped = min(height, y2);
+      int count = (x2_clamped - x1_clamped) * (y2_clamped - y1_clamped);
+      int temp = round((double)sum / count);
+      ImageSetPixel(img, x, y, temp);
     }
   }
 
-  // Copy the values from the temporary image back to the original image
-  for (int y = 0; y < img->height; y++) {
-    for (int x = 0; x < img->width; x++) {
-      uint8 pixel = ImageGetPixel(tempImg, x, y);
-      ImageSetPixel(img, x, y, pixel);
-    }
+  // Free the integral image
+  for (int i = 0; i < height; i++) {
+    free(integralImage[i]);
   }
-
-  // Free the temporary image
-  ImageDestroy(&tempImg);
+  free(integralImage);
 }
-
-// Declaração da matriz global para as somas acumuladas
-
-/*
-void ImageBlurv2(Image img, int radius) {
-  assert(img != NULL);
-
-  // Create a temporary copy of the image to preserve the original values
-  Image tempImg = ImageCreate(img->width, img->height, img->maxval);
-  if (tempImg == NULL) {
-    // Error handling if allocation fails
-    return;
-  }
-
-  // Horizontal pass
-  for (int y = 0; y < img->height; y++) {
-    int sum = 0;
-    for (int x = -radius; x <= radius; x++) {
-      if (x >= 0) {
-        sum += ImageGetPixel(img, x, y);
-      }
-    }
-    for (int x = 0; x < img->width; x++) {
-      if (x - radius - 1 >= 0) {
-        sum -= ImageGetPixel(img, x - radius - 1, y);
-      }
-      if (x + radius < img->width) {
-        sum += ImageGetPixel(img, x + radius, y);
-      }
-      ImageSetPixel(tempImg, x, y, sum / (2 * radius + 1));
-    }
-  }
-
-  // Vertical pass
-  for (int x = 0; x < img->width; x++) {
-    int sum = 0;
-    for (int y = -radius; y <= radius; y++) {
-      if (y >= 0) {
-        sum += ImageGetPixel(tempImg, x, y);
-      }
-    }
-    for (int y = 0; y < img->height; y++) {
-      if (y - radius - 1 >= 0) {
-        sum -= ImageGetPixel(tempImg, x, y - radius - 1);
-      }
-      if (y + radius < img->height) {
-        sum += ImageGetPixel(tempImg, x, y + radius);
-      }
-      ImageSetPixel(img, x, y, sum / (2 * radius + 1));
-    }
-  }
-
-  // Free the temporary image
-  ImageDestroy(&tempImg);
-}
-*/
