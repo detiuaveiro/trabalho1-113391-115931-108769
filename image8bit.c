@@ -757,6 +757,7 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
         // Correspondência encontrada, definir as posições e retornar 1
         *px = x;
         *py = y;
+
         return 1;
       }
     }
@@ -820,4 +821,106 @@ void ImageBlur(Image img, int dx, int dy) {
   ImageDestroy(&tempImg);
 }
 
+void ImageBlurv2(Image img, int dx, int dy) {
+  assert(img != NULL);
 
+  // Create a temporary copy of the image to preserve the original values
+  Image tempImg = ImageCreate(img->width, img->height, img->maxval);
+  if (tempImg == NULL) {
+    // Error handling if allocation fails
+    return;
+  }
+
+  // Traverse all pixels of the image
+  for (int y = 0; y < img->height; y++) {
+    for (int x = 0; x < img->width; x++) {
+      int sum = 0;
+      int count = 0;
+
+      // Traverse the window around the current pixel
+      for (int j = -dy; j <= dy; j++) {
+        for (int i = -dx; i <= dx; i++) {
+          // Check if the position is valid
+          if (ImageValidPos(img, x + i, y + j)) {
+            // Add the value of the pixel to the sum and increment the count
+            sum += ImageGetPixel(img, x + i, y + j);
+            count++;
+          }
+        }
+      }
+
+      // Calculate the average of the values in the window
+      uint8 average = (uint8)round(sum / (double)count);
+
+      // Set the value of the pixel in the temporary image
+      ImageSetPixel(tempImg, x, y, average);
+    }
+  }
+
+  // Copy the values from the temporary image back to the original image
+  for (int y = 0; y < img->height; y++) {
+    for (int x = 0; x < img->width; x++) {
+      uint8 pixel = ImageGetPixel(tempImg, x, y);
+      ImageSetPixel(img, x, y, pixel);
+    }
+  }
+
+  // Free the temporary image
+  ImageDestroy(&tempImg);
+}
+
+// Declaração da matriz global para as somas acumuladas
+
+/*
+void ImageBlurv2(Image img, int radius) {
+  assert(img != NULL);
+
+  // Create a temporary copy of the image to preserve the original values
+  Image tempImg = ImageCreate(img->width, img->height, img->maxval);
+  if (tempImg == NULL) {
+    // Error handling if allocation fails
+    return;
+  }
+
+  // Horizontal pass
+  for (int y = 0; y < img->height; y++) {
+    int sum = 0;
+    for (int x = -radius; x <= radius; x++) {
+      if (x >= 0) {
+        sum += ImageGetPixel(img, x, y);
+      }
+    }
+    for (int x = 0; x < img->width; x++) {
+      if (x - radius - 1 >= 0) {
+        sum -= ImageGetPixel(img, x - radius - 1, y);
+      }
+      if (x + radius < img->width) {
+        sum += ImageGetPixel(img, x + radius, y);
+      }
+      ImageSetPixel(tempImg, x, y, sum / (2 * radius + 1));
+    }
+  }
+
+  // Vertical pass
+  for (int x = 0; x < img->width; x++) {
+    int sum = 0;
+    for (int y = -radius; y <= radius; y++) {
+      if (y >= 0) {
+        sum += ImageGetPixel(tempImg, x, y);
+      }
+    }
+    for (int y = 0; y < img->height; y++) {
+      if (y - radius - 1 >= 0) {
+        sum -= ImageGetPixel(tempImg, x, y - radius - 1);
+      }
+      if (y + radius < img->height) {
+        sum += ImageGetPixel(tempImg, x, y + radius);
+      }
+      ImageSetPixel(img, x, y, sum / (2 * radius + 1));
+    }
+  }
+
+  // Free the temporary image
+  ImageDestroy(&tempImg);
+}
+*/
