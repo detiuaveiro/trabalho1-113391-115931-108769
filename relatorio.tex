@@ -1,0 +1,139 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{float} % For precise figure placement using [H]
+
+\title{TAD Image8bit - Algoritmo e Estruturas de Dados}
+
+\author{
+  Joaquim Martins: 115931 \\
+  David Pelicano: 113391 \\
+  Tiago Soure: 108769
+}
+
+\date{November 2023}
+
+\begin{document}
+
+\maketitle
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.5]{image.png}
+\end{figure}  
+
+\newpage
+\renewcommand\contentsname{Índice}
+\tableofcontents 
+\newpage
+
+\pagenumbering{arabic}
+
+\section{Desenvolvimento do TAD Image8bit}
+
+\subsection{Análise dos Arquivos Fornecidos}
+Os arquivos \texttt{image8bit.h} e \texttt{image8bit.c} foram analisados para compreensão da estrutura e das funções fornecidas.
+
+\subsection{Implementação das Funções}
+As funções especificadas no arquivo de interface \texttt{image8bit.h} foram completadas no arquivo de implementação \texttt{image8bit.c}. Funções auxiliares foram adicionadas conforme necessário para garantir a correta execução.
+
+\subsection{Testes e Resultados}
+Foram realizados testes abrangentes em todas as funções desenvolvidas, utilizando os programas de teste fornecidos. Os resultados foram analisados para verificar a corretude e eficiência do TAD Image8bit.
+
+\section{Análise da Complexidade da Função \texttt{ImageLocateSubImage()}}
+
+\subsection{Testes de Desempenho}
+Para obter dados experimentais sobre a complexidade da função ImageLocateSubImage(), tivemos de criar um novo ficheiro C(testes.c) onde executamos a função com várias imagens de diferentes tamanhos e medir o tempo 
+de execução para cada uma. Isto foi feito 
+
+Sequências de testes foram executadas utilizando imagens de diferentes tamanhos. O número de comparações envolvendo os valores de cinzento dos pixels foi registrado.
+\item \textbf{ImageLocateSubImage:}
+    \begin{itemize}
+        \item Tempo de execução (imagem pequena): 0.005668 segundos
+        \item Tempo de execução (imagem média): 0.000003 segundos
+        \item Tempo de execução (imagem grande): 0.000001 segundos
+    \end{itemize}
+
+    AMANHÃ MUDAR ISTO PORQUE NÃO É IMAGEM PEQUENA/MEDIA/GRANDE PQ ESTÁ COM COMPARACAO DE IMAGENS ATOA
+
+
+\subsection{Análise Formal de Complexidade}
+A complexidade do algoritmo foi analisada para o melhor e o pior caso, considerando todas as possíveis posições na imagem principal.
+
+\subsection{Comparação de Resultados}
+Os resultados dos testes foram comparados com a análise formal de complexidade para avaliar a eficiência do algoritmo implementado.
+
+\section{Análise da Complexidade da Função \texttt{ImageBlur()}}
+
+\subsection{Testes de Desempenho}
+Testes foram conduzidos utilizando imagens e filtros de diferentes tamanhos. O número de operações relevantes foi registrado para analisar a eficiência do algoritmo.
+
+\subsection{Análise Formal de Complexidade}
+A complexidade do algoritmo foi analisada, considerando o tamanho da janela usada para desfocar a imagem.
+
+\subsection{Comparação de Estratégias}
+Apesar de não ser a implementação mais imediata, foram comparadas diferentes estratégias algorítmicas para a resolução do problema, destacando as vantagens e desvantagens de cada abordagem.
+
+\section{Resultados dos Testes}
+
+\begin{itemize}
+    \item \textbf{ImageBlur: 1ª função (tempo de execução maior/mais lenta)}
+    \begin{itemize}
+        \item Tempo de execução (imagem pequena): 0.204621 segundos
+        \item Tempo de execução (imagem média): 1.229907 segundos
+        \item Tempo de execução (imagem larga): 8.457981 segundos
+    \end{itemize}
+    
+    \item \textbf{ImageBlur: 1ª função (tempo de execução maior/mais lenta) com dimensões máximas da imagem}
+    \begin{itemize}
+        \item Tempo de execução (imagem pequena): 68.191713 segundos
+        \item Os tempos de execução das imagens médias e largas não foram incluídos devido à ineficiência da primeira versão da função ImageBlur, especialmente quando aplicada às dimensões máximas da imagem, resultando em longos períodos de espera.
+    \end{itemize}
+    
+    
+    
+    \item \textbf{ImageBlurv2: 2ª função (tempo de execução menor/mais rápida)}
+    \begin{itemize}
+        \item Tempo de execução (imagem pequena): 0.004255 segundos
+        \item Tempo de execução (imagem média): 0.025867 segundos
+        \item Tempo de execução (imagem larga): 0.126103 segundos
+    \end{itemize}
+    
+    \item \textbf{ImageBlurv2: 2ª função (tempo de execução menor/mais rápida) com dimensões máximas da imagem}
+    \begin{itemize}
+        \item Tempo de execução (imagem pequena): 0.002837 segundos
+        \item Tempo de execução (imagem pequena): 0.021988 segundos
+        \item Tempo de execução (imagem grande): 0.216548 segundos
+    \end{itemize}
+\end{itemize}
+
+
+Aspetos Gerais/Apresentação/Conclusão
+o Análise da complexidade da função ImageLocateSubImage()
+▪ Dados experimentais
+▪ Análise Formal
+3
+o Análise da complexidade da função ImageBlur()
+▪ Dados experimentais
+▪ Análise Formal
+▪ Análise Comparativa Algoritmo Básico/Algoritmo Melhora
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Conclusão}
+
+O desenvolvimento do TAD Image8bit foi concluído com sucesso, proporcionando funcionalidades robustas para manipulação de imagens de 8 bits. A análise de complexidade revelou eficiência nas operações implementadas. Possíveis melhorias e otimizações foram identificadas para futuras iterações.
+
+\section{Bibliografia}
+
+Inclui referências bibliográficas relevantes consultadas durante o desenvolvimento do TAD Image8bit.
+
+\end{document}

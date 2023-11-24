@@ -828,46 +828,52 @@ void ImageBlurv2(Image img, int dx, int dy) {
   // Create an integral image
   int width = img->width;
   int height = img->height;
-  int** integralImage = (int**)malloc(height * sizeof(int*));
+  int** integralImage = (int**)malloc(height * sizeof(int*)); // Aloca memória para a imagem integral
   for (int i = 0; i < height; i++) {
     integralImage[i] = (int*)calloc(width, sizeof(int));
+    // Inicializa a imagem integral com zeros
   }
 
-  // Calculate the integral image
+  // Calcula a imagem integral
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      integralImage[y][x] = ImageGetPixel(img, x, y);
+      integralImage[y][x] = ImageGetPixel(img, x, y); 
+      // preenche a imagem integral com as somas cumulativas de pixels
       if (y > 0) integralImage[y][x] += integralImage[y - 1][x];
+      // se não estiver na primeira linha(y>0) adiciona a soma cumulativa da coluna acima do pixel atual
       if (x > 0) integralImage[y][x] += integralImage[y][x - 1];
+      // se não estiver na primeira coluna(x>0) adiciona a soma cumulativa da linha à esquerda do pixel atual
       if (y > 0 && x > 0) integralImage[y][x] -= integralImage[y - 1][x - 1];
+      // Subtrai a soma cumulativa da diagonal superior esquerda do pixel atual (se não estiver na primeira linha nem na primeira coluna)
     }
   }
 
-  // Apply the blur
+  // Aplica o desfoque
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      int x1 = x - dx - 1;
-      int x2 = x + dx;
-      int y1 = y - dy - 1;
-      int y2 = y + dy;
-      int sum = 0;
-      if (x2 < width && y2 < height) sum += integralImage[y2][x2];
-      if (x1 >= 0 && y2 < height) sum -= integralImage[y2][x1];
-      if (y1 >= 0 && x2 < width) sum -= integralImage[y1][x2];
-      if (x1 >= 0 && y1 >= 0) sum += integralImage[y1][x1];
+      int x1 = x - dx - 1;  // Define a borda esquerda da janela de desfoque
+      int x2 = x + dx; // Define a borda direita da janela de desfoque
+      int y1 = y - dy - 1; // Define a borda superior da janela de desfoque
+      int y2 = y + dy; // Define a borda inferior da janela de desfoque
+      int sum = 0; // soma dos pixels que irão desfocar
+      if (x2 < width && y2 < height) sum += integralImage[y2][x2];// Adiciona o valor do pixel inferior direito
+      if (x1 >= 0 && y2 < height) sum -= integralImage[y2][x1];// Subtrai o valor do pixel inferior esquerdo
+      if (y1 >= 0 && x2 < width) sum -= integralImage[y1][x2];// Subtrai o valor do pixel superior direito
+      if (x1 >= 0 && y1 >= 0) sum += integralImage[y1][x1];// Adiciona o valor do pixel superior esquerdo
       int x1_clamped = max(0, x1 + 1);
       int x2_clamped = min(width, x2);
       int y1_clamped = max(0, y1 + 1);
       int y2_clamped = min(height, y2);
-      int count = (x2_clamped - x1_clamped) * (y2_clamped - y1_clamped);
-      int temp = round((double)sum / count);
-      ImageSetPixel(img, x, y, temp);
+      int count = (x2_clamped - x1_clamped) * (y2_clamped - y1_clamped);// Calcula o número de pixels na janela de desfoque
+      int temp = round((double)sum / count);// Calcula a média dos pixels na janela de desfoque
+      ImageSetPixel(img, x, y, temp);// Define o pixel na imagem original para a média calculada
     }
   }
 
-  // Free the integral image
+
   for (int i = 0; i < height; i++) {
-    free(integralImage[i]);
+    free(integralImage[i]); //para cada linha da imagem integral, libera memória
   }
-  free(integralImage);
+  free(integralImage);// Libera a memória da imagem integral
 }
+
