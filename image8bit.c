@@ -151,6 +151,10 @@ void ImageInit(void) { ///
   InstrCalibrate();
   InstrName[0] = "pixmem";  // InstrCount[0] will count pixel array acesses
   // Name other counters here...
+  InstrName[1] = "comp";
+  InstrName[2] = "multiplicacoes";
+  InstrName[3] = "somas";
+  InstrCalibrate();
   
 }
 
@@ -669,6 +673,11 @@ void ImagePaste(Image img1, int x, int y, Image img2) { ///
       ImageSetPixel(img1, destX, destY, pixelValue);
     }
   }
+  if (img1->width >= img2->width && img1->height >= img2->height) {
+        printf("Dá para fazer paste");
+  } else {
+        printf("A imagem2 é muito grande para ser colada na imagem1.\n");
+  }
 
 }
 
@@ -731,6 +740,8 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
       uint8 pixelValue1 = ImageGetPixel(img1, destX, destY);
       uint8 pixelValue2 = ImageGetPixel(img2, srcX, srcY);
 
+
+      COMP++;
       // Verificar se os pixels correspondentes são diferentes
       if (pixelValue1 != pixelValue2) {
         return 0;  // Não há correspondência, retorno falso
@@ -762,6 +773,7 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 
         return 1;
       }
+      
     }
   }
 
@@ -778,6 +790,8 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// The image is changed in-place.
 void ImageBlur(Image img, int dx, int dy) {
   assert(img != NULL);
+  assert(img->width >= 0 && img->height >= 0);
+  InstrReset();
 
   // Create a temporary copy of the image to preserve the original values
   Image tempImg = ImageCreate(img->width, img->height, img->maxval);
@@ -795,10 +809,15 @@ void ImageBlur(Image img, int dx, int dy) {
       // Traverse the window around the current pixel
       for (int j = -dy; j <= dy; j++) {
         for (int i = -dx; i <= dx; i++) {
+
+
           // Check if the position is valid
           if (ImageValidPos(img, x + i, y + j)) {
+            SOMAS += 2;
             // Sum the values of pixels in the window
             sum += ImageGetPixel(img, x + i, y + j);
+            InstrCount[0] += 3;  // to count array acesses
+            InstrCount[1] += 1;  // to count addition
             count++;
           }
         }
@@ -807,6 +826,7 @@ void ImageBlur(Image img, int dx, int dy) {
       // Calculate the average of the values in the window and set the new pixel value
       //int average = (count > 0) ? sum / (double)count : 0;
       uint8 average = (uint8)round(sum/(double)count);
+      MULTIPLICACOES ++;
       ImageSetPixel(tempImg, x, y, average);
     }
   }
@@ -818,17 +838,18 @@ void ImageBlur(Image img, int dx, int dy) {
       ImageSetPixel(img, x, y, pixel);
     }
   }
-
+  InstrPrint();
   // Free the temporary image
   ImageDestroy(&tempImg);
 }
 void ImageBlurv2(Image img, int dx, int dy) {
   assert(img != NULL);
-
+  InstrReset();
   // Create an integral image
   int width = img->width;
   int height = img->height;
   int** integralImage = (int**)malloc(height * sizeof(int*)); // Aloca memória para a imagem integral
+  
   for (int i = 0; i < height; i++) {
     integralImage[i] = (int*)calloc(width, sizeof(int));
     // Inicializa a imagem integral com zeros
@@ -840,10 +861,13 @@ void ImageBlurv2(Image img, int dx, int dy) {
       integralImage[y][x] = ImageGetPixel(img, x, y); 
       // preenche a imagem integral com as somas cumulativas de pixels
       if (y > 0) integralImage[y][x] += integralImage[y - 1][x];
+      SOMAS++;
       // se não estiver na primeira linha(y>0) adiciona a soma cumulativa da coluna acima do pixel atual
       if (x > 0) integralImage[y][x] += integralImage[y][x - 1];
+      SOMAS++;
       // se não estiver na primeira coluna(x>0) adiciona a soma cumulativa da linha à esquerda do pixel atual
       if (y > 0 && x > 0) integralImage[y][x] -= integralImage[y - 1][x - 1];
+      SOMAS++;
       // Subtrai a soma cumulativa da diagonal superior esquerda do pixel atual (se não estiver na primeira linha nem na primeira coluna)
     }
   }
@@ -855,22 +879,37 @@ void ImageBlurv2(Image img, int dx, int dy) {
       int x2 = x + dx; // Define a borda direita da janela de desfoque
       int y1 = y - dy - 1; // Define a borda superior da janela de desfoque
       int y2 = y + dy; // Define a borda inferior da janela de desfoque
+      SOMAS += 4;
       int sum = 0; // soma dos pixels que irão desfocar
-      if (x2 < width && y2 < height) sum += integralImage[y2][x2];// Adiciona o valor do pixel inferior direito
-      if (x1 >= 0 && y2 < height) sum -= integralImage[y2][x1];// Subtrai o valor do pixel inferior esquerdo
-      if (y1 >= 0 && x2 < width) sum -= integralImage[y1][x2];// Subtrai o valor do pixel superior direito
-      if (x1 >= 0 && y1 >= 0) sum += integralImage[y1][x1];// Adiciona o valor do pixel superior esquerdo
+      if (x2 < width && y2 < height){
+        sum += integralImage[y2][x2];// Adiciona o valor do pixel inferior direito
+        SOMAS++;
+      } 
+      if (x1 >= 0 && y2 < height){
+        sum -= integralImage[y2][x1];// Subtrai o valor do pixel inferior esquerdo
+        SOMAS++;
+      } 
+      if (y1 >= 0 && x2 < width){
+        sum -= integralImage[y1][x2];// Subtrai o valor do pixel superior direito
+        SOMAS++;
+      } 
+      if (x1 >= 0 && y1 >= 0){
+        sum += integralImage[y1][x1];// Adiciona o valor do pixel superior esquerdo
+        SOMAS++;
+      } 
       int x1_clamped = max(0, x1 + 1);
       int x2_clamped = min(width, x2);
       int y1_clamped = max(0, y1 + 1);
       int y2_clamped = min(height, y2);
       int count = (x2_clamped - x1_clamped) * (y2_clamped - y1_clamped);// Calcula o número de pixels na janela de desfoque
       int temp = round((double)sum / count);// Calcula a média dos pixels na janela de desfoque
+
+      MULTIPLICACOES += 2;
       ImageSetPixel(img, x, y, temp);// Define o pixel na imagem original para a média calculada
     }
   }
 
-
+  InstrPrint();
   for (int i = 0; i < height; i++) {
     free(integralImage[i]); //para cada linha da imagem integral, libera memória
   }

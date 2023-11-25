@@ -3,13 +3,11 @@
 \usepackage{float} % For precise figure placement using [H]
 
 \title{TAD Image8bit - Algoritmo e Estruturas de Dados}
-
 \author{
   Joaquim Martins: 115931 \\
   David Pelicano: 113391 \\
   Tiago Soure: 108769
 }
-
 \date{November 2023}
 
 \begin{document}
@@ -42,18 +40,14 @@ Foram realizados testes abrangentes em todas as funções desenvolvidas, utiliza
 \section{Análise da Complexidade da Função \texttt{ImageLocateSubImage()}}
 
 \subsection{Testes de Desempenho}
-Para obter dados experimentais sobre a complexidade da função ImageLocateSubImage(), tivemos de criar um novo ficheiro C(testes.c) onde executamos a função com várias imagens de diferentes tamanhos e medir o tempo 
-de execução para cada uma. Isto foi feito 
+Para obter dados experimentais sobre a complexidade da função \texttt{ImageLocateSubImage()}, tivemos de criar um novo ficheiro C (\texttt{testes.c}) onde executamos a função com várias imagens de diferentes tamanhos e medir o tempo de execução para cada operação. Isto foi feito com a ajuda da função \texttt{cpu\_time()} como se pode ver na Figura 1:
 
-Sequências de testes foram executadas utilizando imagens de diferentes tamanhos. O número de comparações envolvendo os valores de cinzento dos pixels foi registrado.
-\item \textbf{ImageLocateSubImage:}
-    \begin{itemize}
-        \item Tempo de execução (imagem pequena): 0.005668 segundos
-        \item Tempo de execução (imagem média): 0.000003 segundos
-        \item Tempo de execução (imagem grande): 0.000001 segundos
-    \end{itemize}
 
-    AMANHÃ MUDAR ISTO PORQUE NÃO É IMAGEM PEQUENA/MEDIA/GRANDE PQ ESTÁ COM COMPARACAO DE IMAGENS ATOA
+
+
+
+
+
 
 
 \subsection{Análise Formal de Complexidade}
@@ -86,10 +80,8 @@ Apesar de não ser a implementação mais imediata, foram comparadas diferentes 
     \item \textbf{ImageBlur: 1ª função (tempo de execução maior/mais lenta) com dimensões máximas da imagem}
     \begin{itemize}
         \item Tempo de execução (imagem pequena): 68.191713 segundos
-        \item Os tempos de execução das imagens médias e largas não foram incluídos devido à ineficiência da primeira versão da função ImageBlur, especialmente quando aplicada às dimensões máximas da imagem, resultando em longos períodos de espera.
+        \item Os tempos de execução das imagens médias e largas não foram incluídos devido à ineficiência da primeira versão da função \texttt{ImageBlur}, especialmente quando aplicada às dimensões máximas da imagem, resultando em longos períodos de espera.
     \end{itemize}
-    
-    
     
     \item \textbf{ImageBlurv2: 2ª função (tempo de execução menor/mais rápida)}
     \begin{itemize}
@@ -101,32 +93,10 @@ Apesar de não ser a implementação mais imediata, foram comparadas diferentes 
     \item \textbf{ImageBlurv2: 2ª função (tempo de execução menor/mais rápida) com dimensões máximas da imagem}
     \begin{itemize}
         \item Tempo de execução (imagem pequena): 0.002837 segundos
-        \item Tempo de execução (imagem pequena): 0.021988 segundos
+        \item Tempo de execução (imagem média): 0.021988 segundos
         \item Tempo de execução (imagem grande): 0.216548 segundos
     \end{itemize}
 \end{itemize}
-
-
-Aspetos Gerais/Apresentação/Conclusão
-o Análise da complexidade da função ImageLocateSubImage()
-▪ Dados experimentais
-▪ Análise Formal
-3
-o Análise da complexidade da função ImageBlur()
-▪ Dados experimentais
-▪ Análise Formal
-▪ Análise Comparativa Algoritmo Básico/Algoritmo Melhora
-
-
-
-
-
-
-
-
-
-
-
 
 \section{Conclusão}
 

@@ -12,6 +12,7 @@
 #ifndef IMAGE8BIT_H
 #define IMAGE8BIT_H
 
+
 #include <inttypes.h>
 
 // Type for pixel levels
@@ -19,6 +20,11 @@ typedef uint8_t uint8;
 
 // Maximum value you can store in a pixel (maximum maxval accepted)
 extern const uint8 PixMax;
+
+#define COMP InstrCount[1]
+#define MULTIPLICACOES InstrCount[2]
+#define SOMAS InstrCount[3]
+
 
 // Type Image is a pointer to image objects
 typedef struct image *Image;
