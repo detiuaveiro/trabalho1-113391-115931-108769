@@ -1,4 +1,17 @@
 \documentclass{article}
+\usepackage[T1]{fontenc} % Fontes T1
+\usepackage[utf8]{inputenc} % Input UTF8
+\usepackage[backend=biber, style=ieee]{biblatex} % para usar bibliografia
+\usepackage{csquotes}
+\usepackage[portuguese]{babel} %Usar língua portuguesa
+\usepackage{blindtext} % Gerar texto automaticamente
+\usepackage[printonlyused]{acronym}
+\usepackage{hyperref} % para autoref
+\usepackage{indentfirst}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+
+
 \usepackage{graphicx} % Required for inserting images
 \usepackage{float} % For precise figure placement using [H]
 
@@ -10,6 +23,7 @@
 }
 \date{November 2023}
 
+\usepackage{amsmath}
 \begin{document}
 
 \maketitle
@@ -26,77 +40,258 @@
 
 \pagenumbering{arabic}
 
-\section{Desenvolvimento do TAD Image8bit}
+\section{Aspetos Gerais}
 
-\subsection{Análise dos Arquivos Fornecidos}
-Os arquivos \texttt{image8bit.h} e \texttt{image8bit.c} foram analisados para compreensão da estrutura e das funções fornecidas.
+\section{Apresentação}
+\subsection{ImageLocateSubImage()}
 
-\subsection{Implementação das Funções}
-As funções especificadas no arquivo de interface \texttt{image8bit.h} foram completadas no arquivo de implementação \texttt{image8bit.c}. Funções auxiliares foram adicionadas conforme necessário para garantir a correta execução.
+A função ImageLocateSubImage(Image img1, int* px, int* py, Image img2) procura uma sub-imagem(img2) dentro
+de uma imagem maior(img1). Esta percorre todas as posições possíveis na imagem img1 onde a subimagem img2
+poderia se encaixar. 
+Para cada posição, ela chama a função ImageMatchSubImage() para verificar se a subimagem img2 
+corresponde à parte da imagem img1 na posição atual.
+Se uma correspondência é encontrada, a função define os valores dos inteiros apontados por px e
+py para as coordenadas x e y da posição correspondente na imagem img1 e retorna 1.
+Se a função percorre todas as posições possíveis na imagem img1 sem encontrar uma correspondência,
+ela retorna 0, indicando que a subimagem img2 não foi encontrada na imagem img1. Nesse caso, os valores
+dos inteiros apontados por px e py não são alterados.
+Nos testes, para retornar 1, foi usada a função ImagePaste(Image img1, int x, int y, Image img2),
+para colar uma imagem(img2) numa posição específica(x,y) dentro de uma imagem maior(img1), copiando
+cada pixel de img2 para a posição correspondente na img1.
 
-\subsection{Testes e Resultados}
-Foram realizados testes abrangentes em todas as funções desenvolvidas, utilizando os programas de teste fornecidos. Os resultados foram analisados para verificar a corretude e eficiência do TAD Image8bit.
+\subsection{ImageBlur()}
 
-\section{Análise da Complexidade da Função \texttt{ImageLocateSubImage()}}
+A função ImageBlur() será usada para aplicar um efeito de desfoque numa imagem.
+Esta percorre cada pixel da imagem e calcula a média dos pixeis numa janela à volta do pixel atual.
+Contudo, foram feitas dois algoritmos, um mais básico e outro melhorado, ou seja foram criadas 2 funções:
+ImageBlur() e ImageBlurv2(). A principal diferença entre as duas funções é a maneira como estas calculam essa média.
 
-\subsection{Testes de Desempenho}
-Para obter dados experimentais sobre a complexidade da função \texttt{ImageLocateSubImage()}, tivemos de criar um novo ficheiro C (\texttt{testes.c}) onde executamos a função com várias imagens de diferentes tamanhos e medir o tempo de execução para cada operação. Isto foi feito com a ajuda da função \texttt{cpu\_time()} como se pode ver na Figura 1:
-
-
-
-
-
-
-
+Para o algoritmo mais básico, ou seja, para a função ImageBlur(), é usado um método direto para calcular a média.
+A função percorre cada pixel na área ao redor do píxel atual, soma os seus valores e divide pelo número total de pixeis na área. 
+Este processo é realizado para cada píxel na imagem. A função utiliza uma imagem temporária para
+ armazenar os novos valores dos pixeis, de modo a não modificar os valores dos píxeis que ainda 
+ precisam ser processados.
 
 
-\subsection{Análise Formal de Complexidade}
-A complexidade do algoritmo foi analisada para o melhor e o pior caso, considerando todas as possíveis posições na imagem principal.
+Para a função ImageBlurv2() foi utilizada uma técnica denominada imagem integral para calcular a média de 
+ forma mais eficiente. Uma imagem integral é uma matriz na qual o valor em cada ponto é a soma de 
+ todos os pixeis acima e à esquerda do ponto atual, incluindo o próprio ponto. Isto possibilita o 
+ cálculo da soma de qualquer retângulo na imagem em tempo constante, apenas subtraindo e adicionando 
+ os valores apropriados da imagem integral. Este método torna o cálculo da média significativamente mais
+  rápido, especialmente para imagens grandes.
 
-\subsection{Comparação de Resultados}
-Os resultados dos testes foram comparados com a análise formal de complexidade para avaliar a eficiência do algoritmo implementado.
 
-\section{Análise da Complexidade da Função \texttt{ImageBlur()}}
 
-\subsection{Testes de Desempenho}
-Testes foram conduzidos utilizando imagens e filtros de diferentes tamanhos. O número de operações relevantes foi registrado para analisar a eficiência do algoritmo.
 
-\subsection{Análise Formal de Complexidade}
-A complexidade do algoritmo foi analisada, considerando o tamanho da janela usada para desfocar a imagem.
 
-\subsection{Comparação de Estratégias}
-Apesar de não ser a implementação mais imediata, foram comparadas diferentes estratégias algorítmicas para a resolução do problema, destacando as vantagens e desvantagens de cada abordagem.
 
-\section{Resultados dos Testes}
 
-\begin{itemize}
-    \item \textbf{ImageBlur: 1ª função (tempo de execução maior/mais lenta)}
-    \begin{itemize}
-        \item Tempo de execução (imagem pequena): 0.204621 segundos
-        \item Tempo de execução (imagem média): 1.229907 segundos
-        \item Tempo de execução (imagem larga): 8.457981 segundos
-    \end{itemize}
+
+
+
+
+
+
+
+\section{Análise da complexidade}
+\subsection{ImageLocateSubImage()}
+
+
+
+
+
+Após concluir o desenvolvimento do TAD, é necessário analisar a eficiência computacional do
+algoritmo desenvolvido para a função ImageLocateSubImage() e da função ImageBlur()/ImageBlurv2().
+\subsubsection{Dados experimentais}
+Para obter os dados experimentais, realizou-se uma sequência de testes, com imagens de diferentes tamanhos, onde registou-se e
+analisou-se o número de comparações efetuadas envolvendo o valor de cinzento (i.e., a
+intensidade) dos pixels das imagens. 
+Com esta sequência de testes, foi feita uma tabela, onde é observado o tamanho das imagens que analisamos, 
+com os nomes destas ao lado, 
+as posições x e y, quando usadas pela função ImagePaste(), o número de comparações, o tempo de execução da função, e 
+se deu para localizar a imagem menor na imagem maior, como se pode ver na figura 1:
+
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.3\textwidth]{imageLocate.png}
+    \caption{Testes para a ImageLocateSubImage()}
+    \label{fig:Figura 1}
+\end{figure}
+
+
+\subsubsection{Análise formal}
+
+\textbf{Melhor caso:}
+O melhor caso, para a função ImageLocateSubImage(), seria se a sub-imagem fosse
+encontrada na primeira posição da imagem principal. Nesse caso, a complexidade de tempo
+seria a complexidade de tempo da função ImageMatchSubImage, porque só precisaria ser chamada uma vez.
+Ou seja, podemos calcular a complexidade do melhor caso, a partir do algoritmo
+
+\begin{align*}
+\sum_{\text{srcY}=0}^{h-1} (\sum_{\text{srcX}=0}^{w-1}1)
+\end{align*}
+
+\begin{center}
+Legenda:
+
+(h-1 = img2->height-1; w-1 = img2->width-1)(ImageMatchSubImage())
+\end{center}
+
+Dando assim a complexidade de O(nm), onde n é a altura da imagem2(menor)
+e m é a largura da imagem2(menor).
+
+
+Um exemplo para o melhor caso,é quando foi feito o teste para localizar uma imagem pequena numa média, onde foi executada a função
+ImagePaste(medium,0,0,small), ou seja irá "copiar" a imagem pequena nas coordenadas dos pixels (0,0) na imagem média, como 
+se pode observar na segunda linha da figura1. Este caso, é considerado o melhor caso, dado que a partir da fórmula da complexidade(n*m),
+podemos confirmar a partir do número de comparações que será igual a n*m(altura da imagem menor* largura da imagem menor).
+
+
+
+\textbf{Pior caso:}
+
+O pior caso seria se a sub-imagem não fosse encontrada de todo, ou se fosse encontrada na última posição da imagem principal.
+Nesse caso, o algoritmo será:
+
+\begin{align\times}
+    &\sum_{\text{srcY}=0}^{h-1}[\left \sum_{\text{srcX}=0}^{w-1} \right \sum_{x=0}^{w - n + 1} (\sum_{y=0}^{h - m + 1}1)]
+\end{align\times}
+
     
-    \item \textbf{ImageBlur: 1ª função (tempo de execução maior/mais lenta) com dimensões máximas da imagem}
-    \begin{itemize}
-        \item Tempo de execução (imagem pequena): 68.191713 segundos
-        \item Os tempos de execução das imagens médias e largas não foram incluídos devido à ineficiência da primeira versão da função \texttt{ImageBlur}, especialmente quando aplicada às dimensões máximas da imagem, resultando em longos períodos de espera.
-    \end{itemize}
+    \begin{center}
+    Legenda:
     
-    \item \textbf{ImageBlurv2: 2ª função (tempo de execução menor/mais rápida)}
-    \begin{itemize}
-        \item Tempo de execução (imagem pequena): 0.004255 segundos
-        \item Tempo de execução (imagem média): 0.025867 segundos
-        \item Tempo de execução (imagem larga): 0.126103 segundos
-    \end{itemize}
+    (h-1 = img2->height-1; w-1 = img2->width-1(ImageMatchSubImage()); w-n+1 =img1->width - img2->width + 1("0 a <=")); w-n+1 =img1->height - img2->height + 1("0 a <=")
+    \end{center}
+
+Dando assim a complexidade de O((al)\times(w-l+1)\times(h-a+1)), onde a é a altura da imagem2(menor)
+e l é a largura da imagem2(menor), h é a altura da imagem1(maior) e w é a largura da imagem1(maior). 
+
+
+
+
+
+
+\subsubsection{Comparação dos dados experimentais com análise formal}
+
+\subsection{ImageBlur()}
+
+\subsubsection{Dados experimentais}
+
+\subsubsubsection{Primeira versão da ImageBlur}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.3\textwidth]{blur.png}
+    \caption{Testes para a ImageBlur()}
+    \label{fig:Figura 2}
+\end{figure}
+
+
+
+
+
+\subsubsubsection{Segunda versão da ImageBlur}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.3\textwidth]{blur2.png}
+    \caption{Testes para a ImageBlurv2()}
+    \label{fig:Figura 3}
+\end{figure}
+\subsubsection{Análise formal}
+\subsubsubsection{Primeira versão da ImageBlur}
+
+Podemos calcular a complexidade do melhor caso, a partir do seguinte algoritmo:
+
+
+\begin{align*}
+    &\sum_{\text{y}=0}^{h}[\left \sum_{\text{x}=0}^{w} \right \sum_{j=-dy}^{dy} (\sum_{i=-dx}^{dx}1)]
+\end{align*}
+ 
+\begin{center}
+    Legenda:
     
-    \item \textbf{ImageBlurv2: 2ª função (tempo de execução menor/mais rápida) com dimensões máximas da imagem}
-    \begin{itemize}
-        \item Tempo de execução (imagem pequena): 0.002837 segundos
-        \item Tempo de execução (imagem média): 0.021988 segundos
-        \item Tempo de execução (imagem grande): 0.216548 segundos
-    \end{itemize}
-\end{itemize}
+    (h e w são a altura e largura da imagem, dx e dy são as dimensões do filtro aplicado)
+    \end{center}
+
+
+\textbf{Melhor caso:}
+O melhor caso para a função ImageBlur() ocorre quando 2dy+1 e 2dx +1 são 1, ou seja a complexidade para 
+o melhor caso seria: O((h*w)*(2dy+1)*(2dx+1)) = O(h*w) = O(n), sendo n o número de pixeis. Logo, 
+o gráfico tempo(eixo 0y)-(h*w)(eixo 0x) será exponencial.
+
+ \textbf{Pior caso}
+
+O pior caso para a função ImageBlur(), dado que dentro desta é chamada a função ImageValidPos(), então irá 
+verificar se 2dy+1 e 2dx+1 são iguais ou menores que a altura e largura, respetivamente. Portanto, 
+a complexidade do pior caso seria O((h*w)*(h)*(w)) = O((h*w)²)=O(n²), sendo n o número de pixeis, ou seja 
+o gráfico tempo(eixo 0y)-(h*w)(eixo 0x) será exponencial.
+
+\subsubsubsection{Segunda versão da ImageBlur}
+
+Podemos calcular a complexidade do melhor caso, a partir do seguinte algoritmo:
+
+\begin{align*}
+    \sum_{\text{y}=0}^{h} (\sum_{\text{x}=w}^{w}1) + \sum_{\text{y}=0}^{h} (\sum_{\text{x}=w}^{w}1) 
+    \end{align*}
+    
+    \begin{center}
+    Legenda:
+    
+    (h e w são a altura e largura da imagem)
+    \end{center}
+    
+    Dando assim a complexidade de O(hw+hw)=O(2hw)=O(2n)=O(n), onde n é o número de pixels.
+    Por isso, o gráfico tempo(eixo 0y)-(h*w)(eixo 0x) será linear.
+
+\subsubsection{Análise Comparativa Algoritmo Básico/Algoritmo Melhorado}
+
+Comparando o algoritmo básico da função ImageBlur() com o algoritmo melhorado da função ImageBlurv2(),
+fazendo os mesmos testes com as mesmas imagens e dimensões, como vemos na Figura~\ref{fig:Figura 2} e na Figura ~\ref{fig:Figura 3}, 
+o tempo de execução da imageBlur() será muito maior que a imageBlurv2(), dado que, como o algoritmo não é tão eficiente,
+será mais lento. Para além disto,a ImageBlur() realiza mais somas(variável global criada no image8bit.h) porque para cada pixel da imagem, 
+esta soma os valores dos pixeis vizinhos. Isto é feito para todos os pixeis da imagem, resultando
+num grande número de operações de soma. Contudo, a ImageBlurv2() realiza mais multiplicações(outra variável global criada no image8bit.h)
+do que a ImageBlur(), visto que, a segunda versão da função utiliza uma imagem integral para calcular
+a média dos pixels vizinhos de forma mais eficiente. No entanto, o cálculo da imagem integral envolve
+mais operações de multiplicação. Por exemplo, para calcular o número de pixels na janela de desfoque,
+a função multiplica a largura pela altura da janela. Além disso, para calcular a média dos pixels na
+janela de desfoque, a função divide a soma dos pixels pelo número de pixels, que é uma operação de 
+multiplicação (já que a divisão é equivalente a multiplicar pelo inverso).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Conclusão}
 

@@ -47,13 +47,17 @@ int main(void)
     printf("Tempo de execução (imagem larga): %f segundos\n", exec_time);
 //
 
-    /*printf("\n(ImageBlur: 1ª função(tempo de execução maior/mais lenta) com dimensões máximas da imagem\n");
+    MULTIPLICACOES = 0;
+    SOMAS = 0;
+    printf("\n(ImageBlur: 1ª função(tempo de execução maior/mais lenta) com dimensões máximas da imagem\n");
     img = ImageLoad("pgm/small/art3_222x217.pgm");
     start_time = cpu_time();
     ImageBlur(img, 222, 217); //  valores só para 1 pixel(640,480(neste caso da img2))
+    printf("Multiplicações: %ld\n",MULTIPLICACOES);
+    printf("Somas: %ld\n",SOMAS);
     finish_time = cpu_time();
     exec_time = finish_time - start_time;
-    printf("Tempo de execução (imagem pequena): %f segundos\n", exec_time);*/
+    printf("Tempo de execução (imagem pequena): %f segundos\n", exec_time);
 //
 
 //
@@ -156,7 +160,8 @@ estas demorarm muito tempo por isso é que comentei
     exec_time = finish_time - start_time;
     printf("Tempo de execução(Pixels de uma grande para outra grande) : %f segundos\n", exec_time);
 
-
+    MULTIPLICACOES = 0;
+    SOMAS = 0;
     printf("\n(ImageBlurv2: 2ª função(tempo de execução menor/mais rápida))\n");
     img = ImageLoad("pgm/small/art3_222x217.pgm");
     start_time = cpu_time();
@@ -164,6 +169,8 @@ estas demorarm muito tempo por isso é que comentei
     finish_time = cpu_time();
     exec_time = finish_time - start_time;
     printf("\nTempo de execução (imagem pequena): %f segundos\n", exec_time);
+    printf("Multiplicações: %ld\n",MULTIPLICACOES);
+    printf("Somas: %ld\n",SOMAS);
 //
 
 //

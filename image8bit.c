@@ -842,6 +842,7 @@ void ImageBlur(Image img, int dx, int dy) {
   // Free the temporary image
   ImageDestroy(&tempImg);
 }
+
 void ImageBlurv2(Image img, int dx, int dy) {
   assert(img != NULL);
   InstrReset();
